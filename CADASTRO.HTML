@@ -1,0 +1,116 @@
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #96759a;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .caixa-login {
+            background-color: white;
+            width: 280px;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        form label {
+            display: block;
+            margin: 12px 0 5px;
+            font-size: 14px;
+        }
+
+        form input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #e39fd2;
+        }
+
+        p {
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="caixa-login">
+        <h2>Cadastro</h2>
+
+        <form id="cadastroForm">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" placeholder="Digite seu nome" required>
+
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" placeholder="Digite seu e-mail" required>
+
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" placeholder="Crie uma senha" required>
+            
+
+            <label for="confirmar">Confirmar senha:</label>
+            <input type="password" id="confirmar" placeholder="Confirme sua senha" required>
+
+            <button type="submit">Cadastrar</button>
+        </form>
+
+        <p>Já tem conta? <a href="login.html">Entrar</a></p>
+    </div>
+
+    <script>
+        document.getElementById("cadastroForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const senha = document.getElementById("senha").value;
+            const confirmar = document.getElementById("confirmar").value;
+
+            if (senha !== confirmar) {
+                alert("As senhas não coincidem!");
+                return;
+            }
+
+            alert("Cadastro demonstrativo concluído!");
+            window.location.href = "login.html";
+        });
+    </script>
+
+</body>
+</html>

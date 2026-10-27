@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #96759a;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .caixa-login {
+            background-color: white;
+            width: 280px;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        form label {
+            display: block;
+            margin: 12px 0 5px;
+            font-size: 14px;
+        }
+
+        form input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .link-esqueci {
+            display: block;
+            text-align: right;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #e39fd2;
+        }
+
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        p {
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="caixa-login">
+        <h2>Login</h2>
+
+        <form id="loginForm">
+            <label for="email">E-mail:</label>
+            <input type="email" id="email"
+                placeholder="Digite seu e-mail" required>
+
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha"
+                placeholder="Digite sua senha" required>
+
+            <a href="#" class="link-esqueci"
+            onclick="alert('Entre em contato com o responsável pelo site para recuperar sua senha.'); return false;">
+                Esqueci minha senha
+            </a>
+
+            <button type="submit" id="botaoEntrar">Entrar</button>
+        </form>
+
+        <p>
+            Não tem conta?
+            <a href="cadastro.html">Cadastrar</a>
+        </p>
+    </div>
+
+    <script>
+        const formulario = document.getElementById("loginForm");
+        const botaoEntrar = document.getElementById("botaoEntrar");
+
+        const MAX_TENTATIVAS = 5;
+        const TEMPO_BLOQUEIO = 5 * 60 * 1000;
+
+        const CHAVE_TENTATIVAS = "loginTentativas";
+        const CHAVE_BLOQUEIO = "loginBloqueio";
+
+        function verificarBloqueio() {
+            const bloqueioAte = Number(
+                localStorage.getItem(CHAVE_BLOQUEIO) || 0
+            );
+
+            if (Date.now() < bloqueioAte) {
+                botaoEntrar.disabled = true;
+
+                const segundos = Math.ceil(
+                    (bloqueioAte - Date.now()) / 1000
+                );
+
+                botaoEntrar.textContent =
+                    "Aguarde " + Math.ceil(segundos / 60) + " min";
+
+                return true;
+            }
+
+            if (bloqueioAte !== 0) {
+                localStorage.removeItem(CHAVE_BLOQUEIO);
+                localStorage.removeItem(CHAVE_TENTATIVAS);
+            }
+
+            botaoEntrar.disabled = false;
+            botaoEntrar.textContent = "Entrar";
+
+            return false;
+        }
+
+        formulario.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            if (verificarBloqueio()) {
+                alert("Acesso bloqueado! Aguarde 5 minutos.");
+                return;
+            }
+
+            const email = document.getElementById("email")
+                .value.trim().toLowerCase();
+
+            const senha = document.getElementById("senha").value;
+
+            let usuarios;
+
+            try {
+                usuarios = JSON.parse(
+                    localStorage.getItem("usuarios") || "[]"
+                );
+
+                if (!Array.isArray(usuarios)) {
+                    throw new Error("Dados inválidos");
+                }
+            } catch (erro) {
+                alert("Erro ao consultar os usuários cadastrados.");
+                return;
+            }
+
+            const usuario = usuarios.find(function(usuario) {
+                return usuario.email &&
+                    usuario.email.trim().toLowerCase() === email &&
+                    usuario.senha === senha;
+            });
+
+            if (!usuario) {
+                let tentativas = Number(
+                    localStorage.getItem(CHAVE_TENTATIVAS) || 0
+                );
+
+                tentativas++;
+
+                localStorage.setItem(
+                    CHAVE_TENTATIVAS,
+                    tentativas
+                );
+
+                if (tentativas >= MAX_TENTATIVAS) {
+                    localStorage.setItem(
+                        CHAVE_BLOQUEIO,
+                        Date.now() + TEMPO_BLOQUEIO
+                    );
+
+                    verificarBloqueio();
+
+                    alert(
+                        "Você errou 5 vezes! " +
+                        "O acesso foi bloqueado por 5 minutos."
+                    );
+
+                    formulario.reset();
+                    return;
+                }
+
+                alert(
+                    "E-mail ou senha incorretos! Tentativas restantes: " +
+                    (MAX_TENTATIVAS - tentativas)
+                );
+
+                return;
+            }
+
+            localStorage.removeItem(CHAVE_TENTATIVAS);
+            localStorage.removeItem(CHAVE_BLOQUEIO);
+
+            alert(
+                "Login realizado com sucesso! Bem-vindo, " +
+                usuario.nome + "!"
+            );
+        });
+        verificarBloqueio();
+    </script>
+
+</body>
+</html>
